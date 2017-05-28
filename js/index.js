@@ -10,6 +10,12 @@ ball.size = 0.2;
 var pitch = new Object();
 pitch.length = 100;
 pitch.width = 70;
+pitch.x = 5;
+pitch.y = 5;
+
+var ground = new Object()
+ground.length = 110;
+ground.width  = 80;
 
 var team = new Object();
 team.name = "Arsenal";
@@ -39,21 +45,56 @@ var yValue = function(d) { return d.y;},                  // data -> value
     yScale = d3.scale.linear().range([0, height]),        // value -> display
     yMap = function(d) { return yScale(yValue(d));};      // data -> display
 
-xScale.domain([0, pitch.width]);
-yScale.domain([0, pitch.length]);
+xScale.domain([0, ground.width]);
+yScale.domain([0, ground.length]);
 
 var svg = d3.select('body').append('svg')
   .attr('height', height)
   .attr('width', width);
 
-var svg_ball = d3.select('body')
 
-var players = svg.selectAll('circle')
+svg.append('rect')
+  .attr('height', yScale(ground.length))
+  .attr('width', xScale(ground.width))
+  .attr('style', "fill:rgb(0,170,0);");
+
+svg.append('rect')
+  .attr('height', yScale(pitch.length))
+  .attr('width', xScale(pitch.width))
+  .attr('x', xScale(pitch.x))
+  .attr('y', yScale(pitch.y))
+  .attr('style', "stroke-width:2; stroke:rgb(255,255,255); fill-opacity:0;");
+
+svg.append('rect')
+  .attr('height', yScale(pitch.length/2))
+  .attr('width', xScale(pitch.width))
+  .attr('x', xScale(pitch.x))
+  .attr('y', yScale(pitch.y+(pitch.length/2)))
+  .attr('style', "stroke-width:2; stroke:rgb(255,255,255); fill-opacity:0;");
+
+// north penalty box
+svg.append('rect')
+  .attr('width', xScale(44))
+  .attr('height', yScale(18))
+  .attr('x', xScale((pitch.width/2)-22))
+  .attr('y', yScale(pitch.y))
+  .attr('style', "stroke-width:2; stroke:rgb(255,255,255); fill-opacity:0;");
+
+// south penalty box
+
+// north goal
+svg.append('line')
+  .attr('x1', xScale(pitch.width/2-4))
+  .attr('y1', yScale(pitch.y))
+  .attr('x2', xScale(pitch.width/2+4))
+  .attr('y2', yScale(pitch.y))
+  .attr('style', "stroke-width:4; stroke:rgb(255,0,0); fill-opacity:1;");
+
+
+var selection = svg.selectAll('circle')
   .data(team.players);
 
-players.enter().append('circle');
-
-
-players.attr("r", 3.5);
-players.attr('cx', xMap);
-players.attr('cy', yMap);
+selection.enter().append('circle');
+selection.attr("r", 3.5);
+selection.attr('cx', xMap);
+selection.attr('cy', yMap);
