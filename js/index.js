@@ -2,7 +2,7 @@ var margin = {top: 10, right: 10, bottom: 10, left: 10},
     width = 350 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var ball = { x: 50, y: 35, size: 0.2 };
+var ball = { x: 50, y: 35, z:0, size: 0.2 , nx: 0, ny: 0, nz: 0, speed: 0};
 var pitch = { length: 100, width: 70, x: 5, y: 5 };
 var ground = { length: 110, width: 80, x: 0, y: 0 };
 
@@ -47,6 +47,39 @@ drawGround();
 drawPitch();
 drawPlayers();
 drawBall();
+
+
+
+var t = d3.timer(function(elapsed) {
+  console.log('...');
+
+  //move ball if still
+  if(ball.speed === 0) {
+    randLocation(ball);
+    d3.selectAll('g.ball circle').transition()
+      .attr("cx",xScale(ball.nx))
+      .attr("cy",yScale(ball.ny))
+      .duration(1000)
+      .delay(100)
+      .each("end", function() { console.log("transition end"); ball.speed = 0; });
+    d3.selectAll('g.players circle').transition()
+      .attr("cx",xScale(ball.nx))
+      .attr("cy",yScale(ball.ny))
+      .duration(3500)
+      .delay(500);
+  };
+
+}, 150);
+
+
+
+function randLocation(obj) {
+  obj.nx = Math.random()*ground.width;
+  obj.ny = Math.random()*ground.length;
+  obj.speed = Math.random()*3;
+
+  console.log("Going to: " + obj.nx + "," + obj.ny + " @ " + obj.speed);
+}
 
 function drawPlayers() {
 
