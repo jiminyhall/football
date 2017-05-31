@@ -11,17 +11,17 @@ var team = {  name: "Arsenal",
               shorts: "red",
               socks: "white",
               players: [
-                { number: 1, x: (pitch.width/2)+pitch.x, y: pitch.y+3 },
-                { number: 2, x: 1*(pitch.width/6)+pitch.x, y: pitch.y+20 },
-                { number: 3, x: 2.25*(pitch.width/6)+pitch.x, y: pitch.y+20 },
-                { number: 4, x: 3.75*(pitch.width/6)+pitch.x, y: pitch.y+20 },
-                { number: 5, x: 5*(pitch.width/6)+pitch.x, y: pitch.y+20 },
-                { number: 6, x: 2.25*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2) },
-                { number: 7, x: 1*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2) },
-                { number: 8, x: 3.75*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2) },
-                { number: 11, x: 5*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2) },
-                { number: 9, x: (pitch.width/2)+pitch.x+3, y: pitch.y+(pitch.length/2)-2 },
-                { number: 10, x: (pitch.width/2)+pitch.x-3, y: pitch.y+(pitch.length/2)-2 }
+                { number: 1, x: (pitch.width/2)+pitch.x, y: pitch.y+3, speed: 1+Math.random()*3 },
+                { number: 2, x: 1*(pitch.width/6)+pitch.x, y: pitch.y+20, speed: 1+Math.random()*3 },
+                { number: 3, x: 2.25*(pitch.width/6)+pitch.x, y: pitch.y+20, speed: 1+Math.random()*3 },
+                { number: 4, x: 3.75*(pitch.width/6)+pitch.x, y: pitch.y+20, speed: 1+Math.random()*3 },
+                { number: 5, x: 5*(pitch.width/6)+pitch.x, y: pitch.y+20, speed: 1+Math.random()*3 },
+                { number: 6, x: 2.25*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2), speed: 1+Math.random()*3 },
+                { number: 7, x: 1*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2), speed: 1+Math.random()*3 },
+                { number: 8, x: 3.75*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2), speed: 1+Math.random()*3 },
+                { number: 11, x: 5*(pitch.width/6)+pitch.x, y: 0.8*(pitch.length/2), speed: 1+Math.random()*3 },
+                { number: 9, x: (pitch.width/2)+pitch.x+3, y: pitch.y+(pitch.length/2)-2, speed: 1+Math.random()*3 },
+                { number: 10, x: (pitch.width/2)+pitch.x-3, y: pitch.y+(pitch.length/2)-2, speed: 1+Math.random()*3 }
 
 ]};
 
@@ -52,22 +52,28 @@ drawBall();
 
 var t = d3.timer(function(elapsed) {
   console.log('...');
+  // if(elapsed>300) t.stop();
 
   //move ball if still
   if(ball.speed === 0) {
     randLocation(ball);
+
+    // set the ball to move to a newly generated location
     d3.selectAll('g.ball circle').transition()
-      .attr("cx",xScale(ball.nx))
-      .attr("cy",yScale(ball.ny))
-      .duration(1000)
-      .delay(100)
-      .each("end", function() { console.log("transition end"); ball.speed = 0; });
+      .attr("cx",xScale(ball.nx))   // new x location
+      .attr("cy",yScale(ball.ny))   // new y location
+      .duration(1000)   // how long the transition lasts (ms)
+      .delay(100)   // how long until the transition starts (ms)
+      .each("end", function() { console.log("transition end"); ball.speed = 0; });  // when the transition ends
+
+    //
     d3.selectAll('g.players circle').transition()
       .attr("cx",xScale(ball.nx))
       .attr("cy",yScale(ball.ny))
-      .duration(3500)
+      .duration(function(d,i) { console.log(d.number + ": " + d.speed); return d.speed*1000; })
       .delay(500);
-  };
+
+    }
 
 }, 150);
 
