@@ -1,4 +1,6 @@
 var t; // timer
+var totalTime = 0;
+var clock = "00:00";
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
     width = 350 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
@@ -53,7 +55,11 @@ drawBall();
 
 function startTimer() {
 
+
   t = d3.timer(function(elapsed) {
+
+    clock.innerHTML = (parseInt(totalTime)+elapsed).toFixed(0);
+
     console.log('...');
     // if(elapsed>300) t.stop();
 
@@ -257,8 +263,10 @@ function drawBall() {
 
 function setUpInfoPanel() {
 
-  var btnStopStart = document.getElementById('btn-stop-start');
+  clock = document.getElementById('clock');
 
+  // set up start stop buttons - and add a click event listener
+  var btnStopStart = document.getElementById('btn-stop-start');
   btnStopStart.addEventListener("click", function() {
     if(btnStopStart.innerHTML === "Start") {
       console.log("Button stop START");
@@ -269,6 +277,7 @@ function setUpInfoPanel() {
       console.log("Button STOP start");
       t.stop();
       btnStopStart.innerHTML = "Start";
+      totalTime = clock.innerHTML; // take a record of the time when the clock is stopped (else gets lost)
     }
   });
 
