@@ -1,1 +1,31 @@
-style.css
+/* add in intuitive box-sizing */
+* {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  font-size: smaller;
+  font-family: 'Noticia Text', serif;
+}
+
+#pitch-container {
+  float: left;
+}
+
+#info-panel {
+  float: left;
+  width: 350px;
+  height: 480px;
+  background-color: #EFEFEF;
+}
+
+#info-panel {
+  padding: 5px;
+  text-align:center;
+}
+
+#to-do-panel {
+  clear: both;
+}

@@ -1,3 +1,4 @@
+var t; // timer
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
     width = 350 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
@@ -38,45 +39,47 @@ var yValue = function(d) { return d.y;},                  // data -> value
 yScale.domain([0, ground.length]);
 
 // set up SVG root
-var svg = d3.select('body').append('svg')
+var svg = d3.select('div#pitch-container').append('svg')
   .attr('class', 'root')
   .attr('width', width)
   .attr('height', height);
 
+setUpInfoPanel();
 drawGround();
 drawPitch();
 drawPlayers();
 drawBall();
 
 
+function startTimer() {
 
-var t = d3.timer(function(elapsed) {
-  console.log('...');
-  // if(elapsed>300) t.stop();
+  t = d3.timer(function(elapsed) {
+    console.log('...');
+    // if(elapsed>300) t.stop();
 
-  //move ball if still
-  if(ball.speed === 0) {
-    randLocation(ball);
+    //move ball if still
+    if(ball.speed === 0) {
+      randLocation(ball);
 
-    // set the ball to move to a newly generated location
-    d3.selectAll('g.ball circle').transition()
-      .attr("cx",xScale(ball.nx))   // new x location
-      .attr("cy",yScale(ball.ny))   // new y location
-      .duration(1000)   // how long the transition lasts (ms)
-      .delay(100)   // how long until the transition starts (ms)
-      .each("end", function() { console.log("transition end"); ball.speed = 0; });  // when the transition ends
+      // set the ball to move to a newly generated location
+      d3.selectAll('g.ball circle').transition()
+        .attr("cx",xScale(ball.nx))   // new x location
+        .attr("cy",yScale(ball.ny))   // new y location
+        .duration(1000)   // how long the transition lasts (ms)
+        .delay(100)   // how long until the transition starts (ms)
+        .each("end", function() { console.log("transition end"); ball.speed = 0; });  // when the transition ends
 
-    //
-    d3.selectAll('g.players circle').transition()
-      .attr("cx",xScale(ball.nx))
-      .attr("cy",yScale(ball.ny))
-      .duration(function(d,i) { console.log(d.number + ": " + d.speed); return d.speed*1000; })
-      .delay(500);
+      //
+      d3.selectAll('g.players circle').transition()
+        .attr("cx",xScale(ball.nx))
+        .attr("cy",yScale(ball.ny))
+        .duration(function(d,i) { console.log(d.number + ": " + d.speed); return d.speed*1000; })
+        .delay(500);
 
-    }
+      }
 
-}, 150);
-
+  }, 150);
+}
 
 
 function randLocation(obj) {
@@ -249,5 +252,24 @@ function drawBall() {
       .attr('r',3)
       .attr('style','fill:rgb(255,140,0); stroke-width:1; stroke:rgb(255,255,255)');
 
+
+}
+
+function setUpInfoPanel() {
+
+  var btnStopStart = document.getElementById('btn-stop-start');
+
+  btnStopStart.addEventListener("click", function() {
+    if(btnStopStart.innerHTML === "Start") {
+      console.log("Button stop START");
+      startTimer();
+      btnStopStart.innerHTML = "Stop";
+    }
+    else {
+      console.log("Button STOP start");
+      t.stop();
+      btnStopStart.innerHTML = "Start";
+    }
+  });
 
 }
