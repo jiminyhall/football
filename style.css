@@ -26,6 +26,15 @@ body {
   text-align:center;
 }
 
+#clock {
+  font-family: 'Overpass Mono', monospace;
+}
+
+#ball-location {
+  text-align: left;
+  font-family: 'Overpass Mono', monospace;
+}
+
 #to-do-panel {
   clear: both;
 }

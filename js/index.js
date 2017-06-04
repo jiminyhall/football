@@ -1,6 +1,10 @@
 var t; // timer
+var lastTime = 0;
 var totalTime = 0;
-var clock = "00:00";
+var northTime = 0;
+var southTime = 0;
+var outTime = 0;
+var clock = "00:00:00";
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
     width = 350 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
@@ -53,15 +57,61 @@ drawPlayers();
 drawBall();
 
 
+
 function startTimer() {
 
 
   t = d3.timer(function(elapsed) {
 
-    clock.innerHTML = (parseInt(totalTime)+elapsed).toFixed(0);
+    clock.innerHTML = convertToTime(totalTime+elapsed);
 
-    console.log('...');
     // if(elapsed>300) t.stop();
+
+    // update ball location
+    var tcx = parseInt(d3.select('g.ball circle').attr("cx"),10);
+    var tcy = parseInt(d3.select('g.ball circle').attr("cy"),10);
+
+    var timeDiff = Math.floor(elapsed - lastTime);
+    lastTime = elapsed;
+
+
+
+    // check if ball in north half, south half or out
+    if( point_in_rectagnle([{x: tcx, y: tcy}],
+                       parseInt(d3.select('#north-half').attr("x"),10),
+                       parseInt(d3.select('#north-half').attr("y"),10),
+                       parseInt(d3.select('#north-half').attr("x"),10)+parseInt(d3.select('#north-half').attr("width"),10),
+                       parseInt(d3.select('#north-half').attr("y"),10)+parseInt(d3.select('#north-half').attr("height"),10))) {
+      // ball is in nouth half
+      //console.log("Ball in north half");
+      northTime += timeDiff;
+      document.getElementById("north-half-panel").innerHTML = ("North time: " + convertToTime(northTime) + " (" + Math.floor((northTime/(totalTime+elapsed))*100) + "%)");
+      document.getElementById("south-half-panel").innerHTML = ("South time: " + convertToTime(southTime) + " (" + Math.floor((southTime/(totalTime+elapsed))*100) + "%)");
+      document.getElementById("out-panel").innerHTML = ("Out time: " + convertToTime(outTime) + " (" + Math.floor((outTime/(totalTime+elapsed))*100) + "%)");
+      console.log("CX: " + tcx + " CY: " + tcy + " update time: " + timeDiff + " N");
+
+    } else if ( point_in_rectagnle([{x: tcx, y: tcy}],
+                       parseInt(d3.select('#south-half').attr("x"),10),
+                       parseInt(d3.select('#south-half').attr("y"),10),
+                       parseInt(d3.select('#south-half').attr("x"),10)+parseInt(d3.select('#south-half').attr("width"),10),
+                       parseInt(d3.select('#south-half').attr("y"),10)+parseInt(d3.select('#south-half').attr("height"),10))) {
+
+      //console.log("Ball in south half");
+      southTime += timeDiff;
+      document.getElementById("north-half-panel").innerHTML = ("North time: " + convertToTime(northTime) + " (" + Math.floor((northTime/(totalTime+elapsed))*100) + "%)");
+      document.getElementById("south-half-panel").innerHTML = ("South time: " + convertToTime(southTime) + " (" + Math.floor((southTime/(totalTime+elapsed))*100) + "%)");
+      document.getElementById("out-panel").innerHTML = ("Out time: " + convertToTime(outTime) + " (" + Math.floor((outTime/(totalTime+elapsed))*100) + "%)");
+      console.log("CX: " + tcx + " CY: " + tcy + " update time: " + timeDiff + " S");
+
+    } else {
+      //console.log("Ball is out");
+      outTime += timeDiff;
+      document.getElementById("north-half-panel").innerHTML = ("North time: " + convertToTime(northTime) + " (" + Math.floor((northTime/(totalTime+elapsed))*100) + "%)");
+      document.getElementById("south-half-panel").innerHTML = ("South time: " + convertToTime(southTime) + " (" + Math.floor((southTime/(totalTime+elapsed))*100) + "%)");
+      document.getElementById("out-panel").innerHTML = ("Out time: " + convertToTime(outTime) + " (" + Math.floor((outTime/(totalTime+elapsed))*100) + "%)");      console.log("CX: " + tcx + " CY: " + tcy + " update time: " + timeDiff + " O");
+    }
+
+
 
     //move ball if still
     if(ball.speed === 0) {
@@ -151,6 +201,7 @@ function drawPitch() {
 
   // draw north half
   svg.append('svg:rect')
+    .attr("id", "north-half")
     .attr('width', xScale(pitch.width))
     .attr('height', yScale(pitch.length/2))
     .attr('x', xScale(pitch.x))
@@ -190,6 +241,7 @@ function drawPitch() {
 
     // draw south half
     svg.append('svg:rect')
+      .attr('id', 'south-half')
       .attr('width', xScale(pitch.width))
       .attr('height', yScale(pitch.length/2))
       .attr('x', xScale(pitch.x))
@@ -276,9 +328,78 @@ function setUpInfoPanel() {
     else {
       console.log("Button STOP start");
       t.stop();
+      lastTime = 0;
       btnStopStart.innerHTML = "Start";
-      totalTime = clock.innerHTML; // take a record of the time when the clock is stopped (else gets lost)
+      totalTime = convertToMS(clock.innerHTML); // take a record of the time when the clock is stopped (else gets lost)
+      //console.log(totalTime);
     }
   });
+
+}
+
+function convertToTime(elapsed) {
+
+  //console.log("Convert " + elapsed);
+
+  var mins = 0;
+  var secs = 0;
+  var ms = 0;
+
+  if(elapsed>=60000)  {
+    mins = Math.floor(elapsed / 1000 / 60);
+    elapsed = Math.floor(elapsed - (mins*1000*60));
+  }
+  if(elapsed>=1000) {
+    secs = Math.floor(elapsed / 1000);
+    elapsed = Math.floor(elapsed - (secs*1000));
+  }
+
+  ms = elapsed;
+
+  // turn all the times into strings and add leading zeros as necessary
+  if(ms<10) {
+    ms = "00" + ms.toFixed(0);
+  } else if(ms<100) {
+    ms = "0" + ms.toFixed(0);
+  } else {
+    ms = "" + ms.toFixed(0);
+  }
+
+  if(secs < 10) {
+    secs = "0" + secs.toFixed(0);
+  } else {
+    secs = "" + secs.toFixed(0);
+  }
+
+  mins = "" + mins.toFixed(0);
+
+  return mins + ":" + secs + ":" + ms;
+
+
+
+}
+
+function convertToMS(minsAndSecs) {
+  //console.log(minsAndSecs.split(":"));
+  var mins = parseInt(minsAndSecs.split(":")[0],10);
+  var secs = parseInt(minsAndSecs.split(":")[1],10);
+  var ms = parseInt(minsAndSecs.split(":")[2],10);
+
+  return ms + (secs * 1000) + (mins * 1000 * 60);
+}
+
+
+// list of points, are they in a rectangle defined by x1,y1 x2,y2
+function point_in_rectagnle(point, x1, y1, x2, y2) {
+
+  for (var i = 0; i < point.length; i++) {
+
+    if ((x1 <= point[i].x) && (point[i].x <= x2) && (y1 <= point[i].y) && (point[i].y <= y2)) {
+        return true;
+    } else {
+        return false;
+      // This point is not inside the rectangle - insert code here
+    }
+  }
 
 }
