@@ -37,12 +37,14 @@ var xValue = function(d) { return d.x;},                  // data -> value
     xScale = d3.scale.linear().range([0, width]),         // value -> display
     xMap = function(d) { return xScale(xValue(d));};      // data -> display
 xScale.domain([0, ground.width]);
+var xRatio = xScale(1); console.log("xRatio: " + xRatio);
 
 /* set up y */
 var yValue = function(d) { return d.y;},                  // data -> value
     yScale = d3.scale.linear().range([0, height]),        // value -> display
     yMap = function(d) { return yScale(yValue(d));};      // data -> display
 yScale.domain([0, ground.length]);
+var yRatio = yScale(1); console.log("yRatio: " + yRatio);
 
 // set up SVG root
 var svg = d3.select('div#pitch-container').append('svg')
@@ -115,21 +117,38 @@ function startTimer() {
 
     //move ball if still
     if(ball.speed === 0) {
+
+      // what is the current location of the ball
+      var ox = d3.select('g.ball circle').attr("cx");
+      var oy = d3.select('g.ball circle').attr("cy");
+
+      // set the new location of the ball
       randLocation(ball);
+
+      // what is the distance between the new ball location and old ball location
+      var dx = (ox/xRatio)-ball.nx;
+      var dy = (oy/yRatio)-ball.ny;
+      var distance = Math.sqrt((dx*dx)+(dy*dy));
+      //console.log("Distance: " + distance);
 
       // set the ball to move to a newly generated location
       d3.selectAll('g.ball circle').transition()
         .attr("cx",xScale(ball.nx))   // new x location
         .attr("cy",yScale(ball.ny))   // new y location
-        .duration(1000)   // how long the transition lasts (ms)
+        .duration(5000)   // how long the transition lasts (ms)
         .delay(100)   // how long until the transition starts (ms)
         .each("end", function() { console.log("transition end"); ball.speed = 0; });  // when the transition ends
 
-      //
+      // move players at a realistic speed based on distance to new ball location from previous
       d3.selectAll('g.players circle').transition()
         .attr("cx",xScale(ball.nx))
         .attr("cy",yScale(ball.ny))
-        .duration(function(d,i) { console.log(d.number + ": " + d.speed); return d.speed*1000; })
+        .duration(function(d,i) {
+
+          var t = (distance/(2.2+d.speed))*1000;
+          console.log(d.number + " to run " + distance + " @ " + (2.2+d.speed) + "m/s = " + t);
+          return t;
+        })
         .delay(500);
 
       }
