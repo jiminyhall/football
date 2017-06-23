@@ -67,9 +67,11 @@ function startTimer() {
 
     // if(elapsed>300) t.stop();
 
-    // update ball location
+    // get ball location from object
     var tcx = parseInt(d3.select('g.ball circle').attr("cx"),10);
     var tcy = parseInt(d3.select('g.ball circle').attr("cy"),10);
+    document.getElementById("xLoc-panel").innerHTML = "X:"+tcx;
+    document.getElementById("yLoc-panel").innerHTML = "Y:"+tcy;
 
     var timeDiff = Math.floor(elapsed - lastTime);
     lastTime = elapsed;
@@ -316,6 +318,7 @@ function drawBall() {
 function setUpInfoPanel() {
 
   clock = document.getElementById('clock');
+
 
   // set up start stop buttons - and add a click event listener
   var btnStopStart = document.getElementById('btn-stop-start');
